@@ -616,6 +616,12 @@ impl G1Projective {
 
     /// Computes the doubling of this point.
     pub fn double(&self) -> G1Projective {
+        let tmp = self.double_internal();
+        G1Projective::conditional_select(&tmp, &G1Projective::identity(), self.is_identity())
+    }
+
+    /// Computes the doubling of this point.
+    pub fn double_internal(&self) -> G1Projective {
         // Algorithm 9, https://eprint.iacr.org/2015/1060.pdf
 
         let t0 = self.y.square();
@@ -637,13 +643,11 @@ impl G1Projective {
         let x3 = t0 * t1;
         let x3 = x3 + x3;
 
-        let tmp = G1Projective {
+        G1Projective {
             x: x3,
             y: y3,
             z: z3,
-        };
-
-        G1Projective::conditional_select(&tmp, &G1Projective::identity(), self.is_identity())
+        }
     }
 
     /// Adds this point to another point.
@@ -746,11 +750,11 @@ impl G1Projective {
             .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
             .skip(1)
         {
-            acc = acc.double();
+            acc = acc.double_internal();
             acc = G1Projective::conditional_select(&acc, &(acc + self), bit);
         }
 
-        acc
+        G1Projective::conditional_select(&acc, &G1Projective::identity(), acc.is_identity())
     }
 
     /// Multiply `self` by `crate::BLS_X`, using double and add.
