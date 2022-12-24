@@ -1,4 +1,5 @@
 use super::*;
+use subtle::Choice;
 
 macro_rules! test_vectors {
     ($projective:ident, $affine:ident, $serialize:ident, $deserialize:ident, $expected:ident) => {
@@ -25,6 +26,41 @@ macro_rules! test_vectors {
 
         assert_eq!(&v[..], $expected);
     };
+}
+
+#[test]
+fn g1_random_tests() {
+    let g1_gen = G1Projective::generator();
+}
+
+#[test]
+fn g1_mul_proj() {
+    use std::fmt::*;
+
+    let scalar_bytes: [u8; 32] = [115,237,167,83,41,157,125,72,51,57,216,8,9,161,216,5,83,189,164,2,255,254,91,254,255,255,255,255,0,0,0,1];
+    //let scalar_bytes: [u8; 32] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1];
+    /*
+    for bit in scalar_bytes
+        .iter()
+        .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
+        .skip(1)
+    {
+        println!("{:?}", bit)
+    }
+    */
+
+    let g1_gen = G1Projective::generator();
+    //let modulus = Scalar::from_bytes(&scalar_bytes).unwrap();
+
+    let acc = G1Projective::identity();
+
+    let res = g1_gen.multiply(&scalar_bytes);
+    //let res2 = G1Affine::from(res);
+
+    //panic!("{:?}", modulus.to_bytes());
+    panic!("{}", res);
+    panic!("kys");
+    //assert_eq!(res.is_identity().unwrap_u8(), 1);
 }
 
 #[test]

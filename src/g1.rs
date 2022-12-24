@@ -735,8 +735,10 @@ impl G1Projective {
         G1Projective::conditional_select(&tmp, self, rhs.is_identity())
     }
 
-    fn multiply(&self, by: &[u8; 32]) -> G1Projective {
+    /// yolo
+    pub fn multiply(&self, by: &[u8; 32]) -> G1Projective {
         let mut acc = G1Projective::identity();
+        let mut count = 0;
 
         // This is a simple double-and-add implementation of point
         // multiplication, moving from most significant to least
@@ -746,12 +748,12 @@ impl G1Projective {
         // elements.
         for bit in by
             .iter()
-            .rev()
             .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
             .skip(1)
         {
-            acc = acc.double_internal();
+            acc = acc.double();//acc.double_internal();
             acc = G1Projective::conditional_select(&acc, &(acc + self), bit);
+            count = count + 1;
         }
 
         G1Projective::conditional_select(&acc, &G1Projective::identity(), acc.is_identity())
