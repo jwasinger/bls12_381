@@ -751,7 +751,7 @@ impl G1Projective {
             .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
             .skip(1)
         {
-            acc = acc.double();//acc.double_internal();
+            acc = acc.double_internal();
             acc = G1Projective::conditional_select(&acc, &(acc + self), bit);
             count = count + 1;
         }
