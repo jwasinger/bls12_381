@@ -67,6 +67,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         let v = vec![G1Projective::generator(); N];
         let mut q = vec![G1Affine::identity(); N];
 
+        /*
         c.bench_function(&format!("{} check on curve", name), move |b| {
             b.iter(|| black_box(a).is_on_curve())
         });
@@ -85,15 +86,18 @@ fn criterion_benchmark(c: &mut Criterion) {
         c.bench_function(&format!("{} mixed addition", name), move |b| {
             b.iter(|| black_box(a).add_mixed(&a_affine))
         });
+        */
         c.bench_function(&format!("{} scalar multiplication", name), move |b| {
             b.iter(|| black_box(a) * black_box(s))
         });
+        /*
         c.bench_function(&format!("{} batch to affine n={}", name, N), move |b| {
             b.iter(|| {
                 G1Projective::batch_normalize(black_box(&v), black_box(&mut q));
                 black_box(&q)[0]
             })
         });
+        */
     }
 
     // G2Affine
