@@ -752,7 +752,9 @@ impl G1Projective {
             .skip(1)
         {
             acc = acc.double();
-            acc = G1Projective::conditional_select(&acc, &(acc + self), bit);
+            if bit.unwrap_u8() == 1 {
+                acc = acc + self;
+            }
         }
 
         G1Projective::conditional_select(&acc, &G1Projective::identity(), acc.is_identity())
