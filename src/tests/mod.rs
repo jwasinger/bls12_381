@@ -57,7 +57,6 @@ fn g1_mul_proj() {
     let res = (g1_gen + g1_gen).multiply(&scalar_bytes1).multiply(&scalar_bytes);
 
     println!("g1_gen is {}", res);
-    panic!("kys");
     //assert_eq!(res.is_identity().unwrap_u8(), 1);
 }
 

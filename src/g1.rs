@@ -747,13 +747,12 @@ impl G1Projective {
         // elements.
         for bit in by
             .iter()
+            .rev()
             .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
             .skip(1)
         {
             acc = acc.double();
-            if bit.unwrap_u8() == 1 {
-                acc = acc + self;
-            }
+            acc = G1Projective::conditional_select(&acc, &(acc + self), bit);
         }
 
         G1Projective::conditional_select(&acc, &G1Projective::identity(), acc.is_identity())
