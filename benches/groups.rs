@@ -61,7 +61,9 @@ fn criterion_benchmark(c: &mut Criterion) {
         let name = "G1Projective";
         let a = G1Projective::generator();
         let a_affine = G1Affine::generator();
-        let s = Scalar::from_raw([1, 2, 3, 4]);
+
+        let scalar_bytes: [u8; 32] = [115,237,167,83,41,157,125,72,51,57,216,8,9,161,216,5,83,189,164,2,255,254,91,254,255,255,255,255,0,0,0,1];
+        let s = Scalar::from_bytes(&scalar_bytes).unwrap();
 
         const N: usize = 10000;
         let v = vec![G1Projective::generator(); N];
