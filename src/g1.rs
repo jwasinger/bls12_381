@@ -620,6 +620,36 @@ impl G1Projective {
         G1Projective::conditional_select(&tmp, &G1Projective::identity(), self.is_identity())
     }
 
+    /// docs
+    pub fn double_internal_debug(&self) -> G1Projective {
+        // Algorithm 9, https://eprint.iacr.org/2015/1060.pdf
+
+        let t0 = self.y.square();
+        let z3 = t0 + t0;
+        let z3 = z3 + z3;
+        let z3 = z3 + z3;
+        let t1 = self.y * self.z;
+        let t2 = self.z.square();
+        let t2 = mul_by_3b(t2);
+        let x3 = t2 * z3;
+        let y3 = t0 + t2;
+        let z3 = t1 * z3;
+        let t1 = t2 + t2;
+        let t2 = t1 + t2;
+        let t0 = t0 - t2;
+        let y3 = t0 * y3;
+        let y3 = x3 + y3;
+        let t1 = self.x * self.y;
+        let x3 = t0 * t1;
+        let x3 = x3 + x3;
+
+        G1Projective {
+            x: x3,
+            y: y3,
+            z: z3,
+        }
+    }
+
     /// Computes the doubling of this point.
     pub fn double_internal(&self) -> G1Projective {
         // Algorithm 9, https://eprint.iacr.org/2015/1060.pdf
@@ -735,7 +765,7 @@ impl G1Projective {
         G1Projective::conditional_select(&tmp, self, rhs.is_identity())
     }
 
-    /// yolo
+	/// yolo
     pub fn multiply(&self, by: &[u8; 32]) -> G1Projective {
         let mut acc = G1Projective::identity();
 
@@ -747,16 +777,51 @@ impl G1Projective {
         // elements.
         for bit in by
             .iter()
+            .rev()
             .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
             .skip(1)
         {
             acc = acc.double();
-            if bit.unwrap_u8() == 1 {
-                acc = acc + self;
-            }
+            acc = G1Projective::conditional_select(&acc, &(acc + self), bit);
         }
 
-        G1Projective::conditional_select(&acc, &G1Projective::identity(), acc.is_identity())
+        acc
+    }
+
+    /// windowed scalar mul with window size of 4
+    pub fn multiply_windowed(&self, by: &[u8; 32]) -> G1Projective {
+        let mut acc = G1Projective::identity();
+
+        let mut precomp_acc = G1Projective::generator();
+        let mut window_constants: [G1Projective; 16] = [G1Projective{x:Fp::zero(), y:Fp::zero(), z:Fp::zero()}; 16];
+        window_constants[0] = G1Projective::identity();
+        for i in 1..16 {
+            window_constants[i] = precomp_acc;
+            precomp_acc = precomp_acc.double_internal();
+        }
+
+        // precompute G1 * 1 -> 2**i * G1
+        // move from least to most significant bytes in the scalar
+        for byte in by.iter().rev() {
+            let hi: usize = (*byte as usize & 0xf0) >> 4;
+            let lo: usize = *byte as usize & 0xf;
+
+            for i in 0..4 {
+                acc = acc.double_internal();
+            }
+
+            acc = acc + window_constants[lo];
+            panic!("ack {:?}", acc);
+
+            return acc;
+            for i in 0..4 {
+                acc = acc.double_internal();
+            }
+
+            acc = acc + window_constants[hi];
+        }
+
+        acc
     }
 
     /// Multiply `self` by `crate::BLS_X`, using double and add.

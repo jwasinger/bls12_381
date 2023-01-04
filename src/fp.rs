@@ -211,7 +211,6 @@ impl Fp {
     pub fn to_bytes(self) -> [u8; 48] {
         // Turn into canonical form by computing
         // (a.R) / R = a
-        //let tmp = self;
         let tmp = Fp::montgomery_reduce(
             self.0[0], self.0[1], self.0[2], self.0[3], self.0[4], self.0[5], 0, 0, 0, 0, 0, 0,
         );

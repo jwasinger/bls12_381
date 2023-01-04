@@ -39,6 +39,7 @@ fn g1_mul_proj() {
 
     let scalar_bytes1: [u8; 32] = [115,237,167,83,41,157,125,72,51,57,216,8,9,161,216,5,83,189,164,2,255,254,91,254,255,255,255,255,0,0,0,0];
     let scalar_bytes: [u8; 32] = [115,237,167,83,41,157,125,72,51,57,216,8,9,161,216,5,83,189,164,2,255,254,91,254,255,255,255,255,0,0,0,1];
+    let scalar_one: [u8; 32] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
     /*
     for bit in scalar_bytes
         .iter()
@@ -54,11 +55,18 @@ fn g1_mul_proj() {
 
     let acc = G1Projective::identity();
 
-    let res = (g1_gen + g1_gen).multiply(&scalar_bytes1).multiply(&scalar_bytes);
+    //let res = (g1_gen + g1_gen).multiply(&scalar_bytes1).multiply(&scalar_bytes);
+    let expected = g1_gen.multiply(&scalar_one);
+    let res = (g1_gen).multiply_windowed(&scalar_one);
+    println!("{:?}", expected);
+    println!("{:?}", res);
+    assert!(res == expected, "foo");
+    let res2 = g1_gen + g1_gen;
 
-    println!("g1_gen is {}", res);
-    panic!("kys");
-    //assert_eq!(res.is_identity().unwrap_u8(), 1);
+    /*
+    println!("res is {}", G1Affine::from(res));
+    println!("g1_gen is {}", G1Affine::from(g1_gen));
+    */
 }
 
 #[test]
