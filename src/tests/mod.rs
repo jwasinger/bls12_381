@@ -61,6 +61,30 @@ fn g1_mul_proj() {
 }
 
 #[test]
+fn g1_mul_proj2() {
+    use std::fmt::*;
+
+    let scalar_bytes: [u8; 32] = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+    /*
+    for bit in scalar_bytes
+        .iter()
+        .flat_map(|byte| (0..8).rev().map(move |i| Choice::from((byte >> i) & 1u8)))
+        .skip(1)
+    {
+        println!("{:?}", bit)
+    }
+    */
+
+    let g1_gen = G1Projective::generator();
+    //let modulus = Scalar::from_bytes(&scalar_bytes).unwrap();
+
+    let res = g1_gen.multiply(&scalar_bytes);
+
+    println!("g1_gen is {}", res);
+    //assert_eq!(res.is_identity().unwrap_u8(), 1);
+}
+
+#[test]
 fn g1_uncompressed_valid_test_vectors() {
     let bytes: &'static [u8] = include_bytes!("g1_uncompressed_valid_test_vectors.dat");
     test_vectors!(
